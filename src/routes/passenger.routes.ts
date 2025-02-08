@@ -1,11 +1,11 @@
 import { Router } from "express"
-import { PassengerController } from "../controllers/passenger.controller"
+import passengerController from "../controllers/passenger.controller"
 
 const router = Router();
 
-router.get("/passengers/:passengerId", PassengerController.getPassenger)
-router.post("/passengers", PassengerController.createPassenger);
-router.put("/passengers", PassengerController.updatePassenger);
-router.delete("/passengers/:passengerId", PassengerController.deletePassenger);
+router.get("/passengers/:passengerId", passengerController.getPassenger)
+router.post("/passengers", passengerController.createPassenger);
+router.put("/passengers", passengerController.updatePassenger);
+router.delete("/passengers/:passengerId", passengerController.deletePassenger);
 
 export default router;

@@ -1,6 +1,5 @@
 import { RoomTypeData } from "./room_type"
 
-// Room
 export interface RoomData {
     id: number;
     number: number;

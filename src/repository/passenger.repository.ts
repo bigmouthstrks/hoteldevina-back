@@ -1,5 +1,6 @@
 import { Passenger, PrismaClient } from "@prisma/client";
 import { PassengerData } from "../models/passenger";
+import { PassengerRepositoryMessages } from "../constants/passenger-messages";
 
 const prisma = new PrismaClient();
 
@@ -8,11 +9,11 @@ export class PassengerRepository {
         try {
             const passenger = await prisma.passenger.findUnique({ where: { id: Number(passengerId) } });
             if (!passenger) {
-                throw new Error("No se pudo encontrar el pasajero");
+                throw new Error(PassengerRepositoryMessages.GET_PASSENGER_ERROR);
             }
             return passenger;
         } catch (error) {
-            throw new Error("No se pudo encontrar el pasajero");
+            throw new Error(PassengerRepositoryMessages.GET_PASSENGER_ERROR);
         }
     }
 
@@ -20,7 +21,7 @@ export class PassengerRepository {
         try {
             return await prisma.passenger.create({ data: passengerData });
         } catch (error) {
-            throw new Error("No se pudo crear el pasajero");
+            throw new Error(PassengerRepositoryMessages.CREATE_PASSENGER_ERORR);
         }
     }
 
@@ -28,7 +29,7 @@ export class PassengerRepository {
         try {
             return await prisma.passenger.delete({ where: { id: Number(passengerId) } });
         } catch (error) {
-            throw new Error("No se pudo eliminar el pasajero");
+            throw new Error(PassengerRepositoryMessages.DELETE_PASSENGER_ERROR);
         }
     }
 
@@ -36,7 +37,7 @@ export class PassengerRepository {
         try {
             return await prisma.passenger.update({ where: { id: Number(passenger.id) }, data: passenger });
         } catch (error) {
-            throw new Error("No se pudo actualizar el pasajero");
+            throw new Error(PassengerRepositoryMessages.UPDATE_PASSENGER_ERROR);
         }
     }
 }

@@ -1,4 +1,3 @@
-// Worker
 export interface WorkerData {
     id: number;
     rut: number;
