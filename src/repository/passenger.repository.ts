@@ -4,8 +4,8 @@ import { PassengerRepositoryMessages } from "../constants/passenger-messages";
 
 const prisma = new PrismaClient();
 
-export class PassengerRepository {
-    static async getPassenger(passengerId: Number): Promise<Passenger | null> {
+class PassengerRepository {
+    async getPassenger(passengerId: Number): Promise<Passenger | null> {
         try {
             const passenger = await prisma.passenger.findUnique({ where: { id: Number(passengerId) } });
             if (!passenger) {
@@ -17,7 +17,7 @@ export class PassengerRepository {
         }
     }
 
-    static async createPassenger(passengerData: PassengerData): Promise<Passenger> {
+    async createPassenger(passengerData: PassengerData): Promise<Passenger> {
         try {
             return await prisma.passenger.create({ data: passengerData });
         } catch (error) {
@@ -25,7 +25,7 @@ export class PassengerRepository {
         }
     }
 
-    static async deletePassenger(passengerId: Number): Promise<Passenger> {
+    async deletePassenger(passengerId: Number): Promise<Passenger> {
         try {
             return await prisma.passenger.delete({ where: { id: Number(passengerId) } });
         } catch (error) {
@@ -33,7 +33,7 @@ export class PassengerRepository {
         }
     }
 
-    static async updatePassenger(passenger: PassengerData): Promise<Passenger> {
+    async updatePassenger(passenger: PassengerData): Promise<Passenger> {
         try {
             return await prisma.passenger.update({ where: { id: Number(passenger.id) }, data: passenger });
         } catch (error) {
@@ -41,3 +41,4 @@ export class PassengerRepository {
         }
     }
 }
+export default new PassengerRepository();

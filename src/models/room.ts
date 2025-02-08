@@ -1,5 +1,3 @@
-import { RoomTypeData } from "./room_type"
-
 export interface RoomData {
     id: number;
     number: number;
@@ -8,5 +6,4 @@ export interface RoomData {
     promotionPrice: number;
     bedNumber: number;
     roomTypeId: number;
-    roomType: RoomTypeData;
 }
