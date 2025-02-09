@@ -33,9 +33,9 @@ class PassengerRepository {
         }
     }
 
-    async updatePassenger(passenger: PassengerData): Promise<Passenger> {
+    async updatePassenger(passengerId: Number, passenger: PassengerData): Promise<Passenger> {
         try {
-            return await prisma.passenger.update({ where: { id: Number(passenger.id) }, data: passenger });
+            return await prisma.passenger.update({ where: { id: Number(passengerId) }, data: passenger });
         } catch (error) {
             throw new Error(PassengerRepositoryMessages.UPDATE_PASSENGER_ERROR);
         }

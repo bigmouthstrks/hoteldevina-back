@@ -8,7 +8,7 @@ import passengerRepository from "../repository/passenger.repository";
 class PassengerController {
     async getPassenger(req: Request, res: Response): Promise<void> {
         try {
-            const passengerId = req.params.passengerId;
+            const passengerId: Number = Number(req.params.id);
             const passenger = await passengerRepository.getPassenger(Number(passengerId));
 
             res.status(200).send(new BaseResponse(PassengerControllerMessages.GET_PASSENGER_SUCCESS, passenger));
@@ -30,8 +30,9 @@ class PassengerController {
 
     async updatePassenger(req: Request, res: Response): Promise<void> {
         try {
+            const passengerId: Number = Number(req.params.id);
             const passengerData: PassengerData = req.body;
-            const updatedPassenger = await passengerRepository.updatePassenger(passengerData);
+            const updatedPassenger = await passengerRepository.updatePassenger(passengerId, passengerData);
 
             res.status(200).send(new BaseResponse(PassengerControllerMessages.UPDATE_PASSENGER_SUCCESS, updatedPassenger));
         } catch (error) {
@@ -41,7 +42,7 @@ class PassengerController {
 
     async deletePassenger(req: Request, res: Response): Promise<void> {
         try {
-            const passengerId = req.params.passengerId;
+            const passengerId = req.params.id;
             const deletedPassenger = await passengerRepository.deletePassenger(Number(passengerId));
 
             res.status(200).send(new BaseResponse(PassengerControllerMessages.DELETE_PASSENGER_SUCCESS, deletedPassenger));
