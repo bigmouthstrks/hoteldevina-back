@@ -1,6 +1,11 @@
-import { RoomData } from './room'
 export interface RoomTypeData {
-    id: number;
+    roomTypeId: number;
     name: string;
     description?: string;
+    singleBedCount: number;
+    queenBedCount: number;
+    features: string[];
+    price: number;
+    promotionPrice: number;
+    capacity: number;
 }

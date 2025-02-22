@@ -1,8 +1,8 @@
-import { RoomData } from "../models/room";
+import { RoomData } from '../models/room';
 import { Request, Response } from 'express';
-import { RoomControllerMessages } from "../constants/room-messages";
-import { BaseResponse } from "../base-response";
-import roomRepository from "../repository/room.repository";
+import { RoomControllerMessages } from '../constants/room-messages';
+import { BaseResponse } from '../base-response';
+import roomRepository from '../repository/room.repository';
 
 class RoomController {
     async getRoom(req: Request, res: Response): Promise<void> {
@@ -21,7 +21,9 @@ class RoomController {
             const roomData = req.body;
             const newRoom = await roomRepository.createRoom(roomData);
 
-            res.status(200).send(new BaseResponse(RoomControllerMessages.CREATE_ROOM_SUCCESS, newRoom));
+            res.status(200).send(
+                new BaseResponse(RoomControllerMessages.CREATE_ROOM_SUCCESS, newRoom)
+            );
         } catch (error) {
             res.status(500).send(new BaseResponse(RoomControllerMessages.CREATE_ROOM_ERROR, error));
         }
@@ -32,7 +34,9 @@ class RoomController {
             const roomData: RoomData = req.body;
             const updatedRoom = await roomRepository.updateRoom(roomData);
 
-            res.status(200).send(new BaseResponse(RoomControllerMessages.UPDATE_ROOM_SUCCESS, updatedRoom));
+            res.status(200).send(
+                new BaseResponse(RoomControllerMessages.UPDATE_ROOM_SUCCESS, updatedRoom)
+            );
         } catch (error) {
             res.status(500).send(new BaseResponse(RoomControllerMessages.UPDATE_ROOM_ERROR, error));
         }
@@ -43,7 +47,9 @@ class RoomController {
             const roomId = req.params.roomId;
             const deletedRoom = await roomRepository.deleteRoom(Number(roomId));
 
-            res.status(200).send(new BaseResponse(RoomControllerMessages.DELETE_ROOM_SUCCESS, deletedRoom));
+            res.status(200).send(
+                new BaseResponse(RoomControllerMessages.DELETE_ROOM_SUCCESS, deletedRoom)
+            );
         } catch (error) {
             res.status(500).send(new BaseResponse(RoomControllerMessages.DELETE_ROOM_ERROR, error));
         }

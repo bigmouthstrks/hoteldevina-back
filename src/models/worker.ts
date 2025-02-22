@@ -1,5 +1,5 @@
 export interface WorkerData {
-    id: number;
+    workerId: number;
     rut: number;
     name: string;
     lastName: string;

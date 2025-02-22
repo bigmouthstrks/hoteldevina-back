@@ -1,19 +1,22 @@
-import { Passenger, PrismaClient } from "@prisma/client";
-import { PassengerData } from "../models/passenger";
-import { PassengerRepositoryMessages } from "../constants/passenger-messages";
+import { Passenger, PrismaClient } from '@prisma/client';
+import { PassengerData } from '../models/passenger';
+import { PassengerMessages } from '../constants/passenger-messages';
+import { APIError } from '../api-error';
 
 const prisma = new PrismaClient();
 
 class PassengerRepository {
     async getPassenger(passengerId: Number): Promise<Passenger | null> {
         try {
-            const passenger = await prisma.passenger.findUnique({ where: { id: Number(passengerId) } });
+            const passenger = await prisma.passenger.findUnique({
+                where: { passengerId: Number(passengerId) },
+            });
             if (!passenger) {
-                throw new Error(PassengerRepositoryMessages.GET_PASSENGER_ERROR);
+                throw new APIError(PassengerMessages.GET_PASSENGER_ERROR);
             }
             return passenger;
         } catch (error) {
-            throw new Error(PassengerRepositoryMessages.GET_PASSENGER_ERROR);
+            throw new APIError(PassengerMessages.GET_PASSENGER_ERROR);
         }
     }
 
@@ -21,23 +24,26 @@ class PassengerRepository {
         try {
             return await prisma.passenger.create({ data: passengerData });
         } catch (error) {
-            throw new Error(PassengerRepositoryMessages.CREATE_PASSENGER_ERORR);
+            throw new APIError(PassengerMessages.CREATE_PASSENGER_ERORR);
         }
     }
 
     async deletePassenger(passengerId: Number): Promise<Passenger> {
         try {
-            return await prisma.passenger.delete({ where: { id: Number(passengerId) } });
+            return await prisma.passenger.delete({ where: { passengerId: Number(passengerId) } });
         } catch (error) {
-            throw new Error(PassengerRepositoryMessages.DELETE_PASSENGER_ERROR);
+            throw new APIError(PassengerMessages.DELETE_PASSENGER_ERROR);
         }
     }
 
     async updatePassenger(passengerId: Number, passenger: PassengerData): Promise<Passenger> {
         try {
-            return await prisma.passenger.update({ where: { id: Number(passengerId) }, data: passenger });
+            return await prisma.passenger.update({
+                where: { passengerId: Number(passengerId) },
+                data: passenger,
+            });
         } catch (error) {
-            throw new Error(PassengerRepositoryMessages.UPDATE_PASSENGER_ERROR);
+            throw new APIError(PassengerMessages.UPDATE_PASSENGER_ERROR);
         }
     }
 }

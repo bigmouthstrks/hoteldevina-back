@@ -1,5 +1,5 @@
 export interface RoomData {
-    id: number;
+    roomId: number;
     number: number;
     isAvailable: boolean;
     price: number;

@@ -1,0 +1,15 @@
+export enum AuthMessages {
+    LOGIN_SUCCESS = 'Inicio de sesión exitoso',
+    LOGIN_ERROR = 'No se pudo iniciar sesión',
+    LOGOUT_SUCCESS = 'Cierre de sesión exitoso',
+    LOGOUT_ERROR = 'No se pudo cerrar sesión',
+    REGISTER_SUCCESS = 'Registro exitoso',
+    REGISTER_ERROR = 'No se pudo registrar',
+    GET_USER_SUCCESS = 'Usuario encontrado con éxito',
+    GET_USER_ERROR = 'No se pudo encontrar el usuario',
+    RESET_PASSWORD_SUCCESS = 'Contraseña restablecida con éxito',
+    RESET_PASSWORD_ERROR = 'No se pudo restablecer la contraseña',
+    INVALID_CREDENTIALS = 'Credenciales inválidas',
+    USER_NOT_FOUND = 'Usuario no encontrado',
+    UNABLE_TO_UPDATE_USER = 'No se pudo actualizar la contraseña',
+}

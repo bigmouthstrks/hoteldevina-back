@@ -7,43 +7,77 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Worker
 model Worker {
-  id             Int    @id @default(autoincrement())
+  workerId       Int           @id @default(autoincrement())
   rut            Int
   name           String
   lastName       String
   email          String
   positionId     Int
   contractTypeId Int
+  reservations   Reservation[]
 }
 
-// RoomType
 model RoomType {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
-  rooms       Room[]
-}
-
-// Room
-model Room {
-  id             Int      @id @default(autoincrement())
-  number         Int
-  isAvailable    Boolean
+  roomTypeId     Int           @id @default(autoincrement())
+  name           String
+  description    String?
+  singleBedCount Int
+  queenBedCount  Int
+  features       String[]
   price          Int
   promotionPrice Int
-  bedNumber      Int
-  roomTypeId     Int
-  roomType       RoomType @relation(fields: [roomTypeId], references: [id])
+  capacity       Int
+  rooms          Room[]
+  reservations   Reservation[]
 }
 
-// Passenger
+model Room {
+  roomId      Int      @id @default(autoincrement())
+  number      Int
+  isAvailable Boolean
+  roomTypeId  Int
+  roomType    RoomType @relation(fields: [roomTypeId], references: [roomTypeId])
+}
+
 model Passenger {
-  id             Int     @id @default(autoincrement())
-  documentType   String
-  documentNumber String
+  passengerId    Int           @id @default(autoincrement())
+  documentType   String?
+  documentNumber String?
   firstName      String
   lastName       String
   email          String?
+  reservations   Reservation[]
+}
+
+model Reservation {
+  reservationId       Int               @id @default(autoincrement())
+  checkIn             DateTime
+  checkOut            DateTime
+  passengers          Passenger[]
+  roomTypeId          Int
+  roomType            RoomType          @relation(fields: [roomTypeId], references: [roomTypeId])
+  userId              Int
+  user                User              @relation(fields: [userId], references: [userId])
+  workerId            Int
+  worker              Worker            @relation(fields: [workerId], references: [workerId])
+  reservationStatusId Int
+  reservationStatus   ReservationStatus @relation(fields: [reservationId], references: [reservationStatusId])
+}
+
+model User {
+  userId         Int           @id @default(autoincrement())
+  email          String        @unique
+  password       String
+  role           String
+  documentType   String?
+  documentNumber String?
+  reservations   Reservation[]
+}
+
+model ReservationStatus {
+  reservationStatusId Int           @id @default(autoincrement())
+  name                String
+  description         String?
+  reservations        Reservation[]
 }

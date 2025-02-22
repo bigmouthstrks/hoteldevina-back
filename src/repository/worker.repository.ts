@@ -1,19 +1,19 @@
-import { Worker, PrismaClient } from "@prisma/client";
-import { WorkerData } from "../models/worker";
-import { WorkerRepositoryMessages } from "../constants/worker-messages";
+import { Worker, PrismaClient } from '@prisma/client';
+import { WorkerData } from '../models/worker';
+import { WorkerMessages } from '../constants/worker-messages';
 
 const prisma = new PrismaClient();
 
 class WorkerRepository {
     async getWorker(workerId: number): Promise<Worker | null> {
         try {
-            const worker = await prisma.worker.findUnique({ where: { id: workerId } });
+            const worker = await prisma.worker.findUnique({ where: { workerId: workerId } });
             if (!worker) {
-                throw new Error(WorkerRepositoryMessages.GET_WORKER_ERROR)
+                throw new Error(WorkerMessages.GET_WORKER_ERROR);
             }
             return worker;
         } catch (error) {
-            throw new Error(WorkerRepositoryMessages.GET_WORKER_ERROR)
+            throw new Error(WorkerMessages.GET_WORKER_ERROR);
         }
     }
 
@@ -21,23 +21,26 @@ class WorkerRepository {
         try {
             return await prisma.worker.create({ data: workerData });
         } catch (error) {
-            throw new Error(WorkerRepositoryMessages.CREATE_WORKER_ERROR)
+            throw new Error(WorkerMessages.CREATE_WORKER_ERROR);
         }
     }
 
     async updateWorker(workerData: WorkerData): Promise<Worker> {
         try {
-            return await prisma.worker.update({ where: { id: workerData.id }, data: workerData });
+            return await prisma.worker.update({
+                where: { workerId: workerData.workerId },
+                data: workerData,
+            });
         } catch (error) {
-            throw new Error(WorkerRepositoryMessages.UPDATE_WORKER_ERROR)
+            throw new Error(WorkerMessages.UPDATE_WORKER_ERROR);
         }
     }
 
     async deleteWorker(workerId: number): Promise<Worker> {
         try {
-            return await prisma.worker.delete({ where: { id: workerId } });
+            return await prisma.worker.delete({ where: { workerId: workerId } });
         } catch (error) {
-            throw new Error(WorkerRepositoryMessages.DELETE_WORKER_ERROR)
+            throw new Error(WorkerMessages.DELETE_WORKER_ERROR);
         }
     }
 }

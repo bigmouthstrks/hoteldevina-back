@@ -1,8 +1,8 @@
-import { RoomTypeData } from "../models/room-type";
+import { RoomTypeData } from '../models/room-type';
 import { Request, Response } from 'express';
-import { RoomTypeControllerMessages } from "../constants/room-type-messages";
-import { BaseResponse } from "../base-response";
-import roomTypeRepository from "../repository/room-type.repository";
+import { RoomTypeMessages } from '../constants/room-type-messages';
+import { BaseResponse } from '../base-response';
+import roomTypeRepository from '../repository/room-type.repository';
 
 class RoomTypeController {
     async getRoomType(req: Request, res: Response): Promise<void> {
@@ -10,9 +10,11 @@ class RoomTypeController {
             const roomTypeId = req.params.roomTypeId;
             const roomType = await roomTypeRepository.getRoomType(Number(roomTypeId));
 
-            res.status(200).send(new BaseResponse(RoomTypeControllerMessages.GET_ROOM_TYPE_SUCCESS, roomType));
+            res.status(200).send(
+                new BaseResponse(RoomTypeMessages.GET_ROOM_TYPE_SUCCESS, roomType)
+            );
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomTypeControllerMessages.GET_ROOM_TYPE_ERROR, error));
+            res.status(500).send(new BaseResponse(RoomTypeMessages.GET_ROOM_TYPE_ERROR, error));
         }
     }
 
@@ -21,9 +23,11 @@ class RoomTypeController {
             const roomTypeData = req.body;
             const newRoomType = await roomTypeRepository.createRoomType(roomTypeData);
 
-            res.status(200).send(new BaseResponse(RoomTypeControllerMessages.CREATE_ROOM_TYPE_SUCCESS, newRoomType));
+            res.status(200).send(
+                new BaseResponse(RoomTypeMessages.CREATE_ROOM_TYPE_SUCCESS, newRoomType)
+            );
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomTypeControllerMessages.CREATE_ROOM_TYPE_ERROR, error));
+            res.status(500).send(new BaseResponse(RoomTypeMessages.CREATE_ROOM_TYPE_ERROR, error));
         }
     }
 
@@ -32,9 +36,11 @@ class RoomTypeController {
             const roomTypeData: RoomTypeData = req.body;
             const updatedRoomType = await roomTypeRepository.updateRoomType(roomTypeData);
 
-            res.status(200).send(new BaseResponse(RoomTypeControllerMessages.UPDATE_ROOM_TYPE_SUCCESS, updatedRoomType));
+            res.status(200).send(
+                new BaseResponse(RoomTypeMessages.UPDATE_ROOM_TYPE_SUCCESS, updatedRoomType)
+            );
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomTypeControllerMessages.UPDATE_ROOM_TYPE_ERROR, error));
+            res.status(500).send(new BaseResponse(RoomTypeMessages.UPDATE_ROOM_TYPE_ERROR, error));
         }
     }
 
@@ -43,9 +49,11 @@ class RoomTypeController {
             const roomTypeId = req.params.roomTypeId;
             const deletedRoomType = await roomTypeRepository.deleteRoomType(Number(roomTypeId));
 
-            res.status(200).send(new BaseResponse(RoomTypeControllerMessages.DELETE_ROOM_TYPE_SUCCESS, deletedRoomType));
+            res.status(200).send(
+                new BaseResponse(RoomTypeMessages.DELETE_ROOM_TYPE_SUCCESS, deletedRoomType)
+            );
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomTypeControllerMessages.DELETE_ROOM_TYPE_ERROR, error));
+            res.status(500).send(new BaseResponse(RoomTypeMessages.DELETE_ROOM_TYPE_ERROR, error));
         }
     }
 }

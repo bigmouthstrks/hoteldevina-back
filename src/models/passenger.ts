@@ -1,5 +1,5 @@
 export interface PassengerData {
-    id: number;
+    passengerId: number;
     documentType: string;
     documentNumber: string;
     firstName: string;

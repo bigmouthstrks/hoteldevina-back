@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import WorkerController from '../controllers/worker.controller';
+import workerController from '../controllers/worker.controller';
 
 const router = Router();
 
-router.get('/worker/:workerId', WorkerController.getWorker);
-router.post('/worker', WorkerController.createWorker);
-router.put('/worker', WorkerController.updateWorker);
-router.delete('/worker/:workerId', WorkerController.deleteWorker);
+router.get('/worker/:workerId', workerController.getWorker);
+router.post('/worker', workerController.createWorker);
+router.put('/worker', workerController.updateWorker);
+router.delete('/worker/:workerId', workerController.deleteWorker);
 
 export default router;
