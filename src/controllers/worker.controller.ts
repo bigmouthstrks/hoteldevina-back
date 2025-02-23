@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { WorkerMessages } from '../constants/worker-messages';
 import { BaseResponse } from '../base-response';
 import workerRepository from '../repository/worker.repository';
+import { APIError } from '../api-error';
 
 class WorkerController {
     async getWorker(req: Request, res: Response): Promise<void> {
@@ -12,7 +13,9 @@ class WorkerController {
 
             res.status(200).send(new BaseResponse(WorkerMessages.GET_WORKER_SUCCESS, worker));
         } catch (error) {
-            res.status(500).send(new BaseResponse(WorkerMessages.GET_WORKER_ERROR, error));
+            res.status(500).send(
+                new BaseResponse(WorkerMessages.GET_WORKER_ERROR, undefined, error as APIError)
+            );
         }
     }
 
@@ -23,7 +26,9 @@ class WorkerController {
 
             res.status(200).send(new BaseResponse(WorkerMessages.CREATE_WORKER_SUCCESS, newWorker));
         } catch (error) {
-            res.status(500).send(new BaseResponse(WorkerMessages.CREATE_WORKER_ERROR, error));
+            res.status(500).send(
+                new BaseResponse(WorkerMessages.CREATE_WORKER_ERROR, undefined, error as APIError)
+            );
         }
     }
 
@@ -36,7 +41,9 @@ class WorkerController {
                 new BaseResponse(WorkerMessages.UPDATE_WORKER_SUCCESS, updatedWorker)
             );
         } catch (error) {
-            res.status(500).send(new BaseResponse(WorkerMessages.UPDATE_WORKER_ERROR, error));
+            res.status(500).send(
+                new BaseResponse(WorkerMessages.UPDATE_WORKER_ERROR, undefined, error as APIError)
+            );
         }
     }
 
@@ -49,7 +56,9 @@ class WorkerController {
                 new BaseResponse(WorkerMessages.DELETE_WORKER_SUCCESS, deletedWorker)
             );
         } catch (error) {
-            res.status(500).send(new BaseResponse(WorkerMessages.DELETE_WORKER_ERROR, error));
+            res.status(500).send(
+                new BaseResponse(WorkerMessages.DELETE_WORKER_ERROR, undefined, error as APIError)
+            );
         }
     }
 }

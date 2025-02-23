@@ -1,6 +1,6 @@
 import { RoomData } from '../models/room';
 import { Request, Response } from 'express';
-import { RoomControllerMessages } from '../constants/room-messages';
+import { RoomMessages } from '../constants/room-messages';
 import { BaseResponse } from '../base-response';
 import roomRepository from '../repository/room.repository';
 
@@ -10,9 +10,9 @@ class RoomController {
             const roomId = req.params.roomId;
             const room = await roomRepository.getRoom(Number(roomId));
 
-            res.status(200).send(new BaseResponse(RoomControllerMessages.GET_ROOM_SUCCESS, room));
+            res.status(200).send(new BaseResponse(RoomMessages.GET_ROOM_SUCCESS, room));
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomControllerMessages.GET_ROOM_ERROR, error));
+            res.status(500).send(new BaseResponse(RoomMessages.GET_ROOM_ERROR, error));
         }
     }
 
@@ -21,11 +21,9 @@ class RoomController {
             const roomData = req.body;
             const newRoom = await roomRepository.createRoom(roomData);
 
-            res.status(200).send(
-                new BaseResponse(RoomControllerMessages.CREATE_ROOM_SUCCESS, newRoom)
-            );
+            res.status(200).send(new BaseResponse(RoomMessages.CREATE_ROOM_SUCCESS, newRoom));
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomControllerMessages.CREATE_ROOM_ERROR, error));
+            res.status(500).send(new BaseResponse(RoomMessages.CREATE_ROOM_ERROR, error));
         }
     }
 
@@ -34,11 +32,9 @@ class RoomController {
             const roomData: RoomData = req.body;
             const updatedRoom = await roomRepository.updateRoom(roomData);
 
-            res.status(200).send(
-                new BaseResponse(RoomControllerMessages.UPDATE_ROOM_SUCCESS, updatedRoom)
-            );
+            res.status(200).send(new BaseResponse(RoomMessages.UPDATE_ROOM_SUCCESS, updatedRoom));
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomControllerMessages.UPDATE_ROOM_ERROR, error));
+            res.status(500).send(new BaseResponse(RoomMessages.UPDATE_ROOM_ERROR, error));
         }
     }
 
@@ -47,11 +43,9 @@ class RoomController {
             const roomId = req.params.roomId;
             const deletedRoom = await roomRepository.deleteRoom(Number(roomId));
 
-            res.status(200).send(
-                new BaseResponse(RoomControllerMessages.DELETE_ROOM_SUCCESS, deletedRoom)
-            );
+            res.status(200).send(new BaseResponse(RoomMessages.DELETE_ROOM_SUCCESS, deletedRoom));
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomControllerMessages.DELETE_ROOM_ERROR, error));
+            res.status(500).send(new BaseResponse(RoomMessages.DELETE_ROOM_ERROR, error));
         }
     }
 }

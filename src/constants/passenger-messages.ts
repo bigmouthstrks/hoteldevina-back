@@ -8,4 +8,5 @@ export enum PassengerMessages {
     DELETE_PASSENGER_SUCCESS = 'Pasajero eliminado con éxito',
     DELETE_PASSENGER_ERROR = 'No se pudo eliminar el pasajero',
     CREATE_PASSENGER_ERORR = 'No se pudo crear el pasajero',
+    PASSENGER_NOT_FOUND = 'Pasajero no encontrado',
 }

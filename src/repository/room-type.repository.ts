@@ -1,8 +1,8 @@
 import { RoomType, PrismaClient } from '@prisma/client';
 import { RoomTypeData } from '../models/room-type';
 import { RoomTypeMessages } from '../constants/room-type-messages';
-
-const prisma = new PrismaClient();
+import { APIError } from '../api-error';
+import prisma from '../utils/prisma-client-wrapper';
 
 class RoomTypeRepository {
     async getRoomType(roomTypeId: Number): Promise<RoomType | null> {
@@ -11,11 +11,12 @@ class RoomTypeRepository {
                 where: { roomTypeId: Number(roomTypeId) },
             });
             if (!roomType) {
-                throw new Error(RoomTypeMessages.GET_ROOM_TYPE_ERROR);
+                throw new APIError(RoomTypeMessages.GET_ROOM_TYPE_ERROR, 404);
             }
             return roomType;
         } catch (error) {
-            throw new Error(RoomTypeMessages.GET_ROOM_TYPE_ERROR);
+            console.error(error);
+            throw new APIError(RoomTypeMessages.GET_ROOM_TYPE_ERROR, 500);
         }
     }
 
@@ -23,7 +24,8 @@ class RoomTypeRepository {
         try {
             return await prisma.roomType.create({ data: roomTypeData });
         } catch (error) {
-            throw new Error(RoomTypeMessages.CREATE_ROOM_TYPE_ERROR);
+            console.error(error);
+            throw new APIError(RoomTypeMessages.CREATE_ROOM_TYPE_ERROR, 500);
         }
     }
 
@@ -31,7 +33,8 @@ class RoomTypeRepository {
         try {
             return await prisma.roomType.delete({ where: { roomTypeId: Number(roomTypeId) } });
         } catch (error) {
-            throw new Error(RoomTypeMessages.DELETE_ROOM_TYPE_ERROR);
+            console.error(error);
+            throw new APIError(RoomTypeMessages.DELETE_ROOM_TYPE_ERROR, 500);
         }
     }
 
@@ -42,7 +45,8 @@ class RoomTypeRepository {
                 data: roomType,
             });
         } catch (error) {
-            throw new Error(RoomTypeMessages.UPDATE_ROOM_TYPE_ERROR);
+            console.error(error);
+            throw new APIError(RoomTypeMessages.UPDATE_ROOM_TYPE_ERROR, 500);
         }
     }
 }

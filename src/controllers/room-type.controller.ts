@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { RoomTypeMessages } from '../constants/room-type-messages';
 import { BaseResponse } from '../base-response';
 import roomTypeRepository from '../repository/room-type.repository';
+import { APIError } from '../api-error';
 
 class RoomTypeController {
     async getRoomType(req: Request, res: Response): Promise<void> {
@@ -14,7 +15,9 @@ class RoomTypeController {
                 new BaseResponse(RoomTypeMessages.GET_ROOM_TYPE_SUCCESS, roomType)
             );
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomTypeMessages.GET_ROOM_TYPE_ERROR, error));
+            res.status(500).send(
+                new BaseResponse(RoomTypeMessages.GET_ROOM_TYPE_ERROR, undefined, error as APIError)
+            );
         }
     }
 
@@ -27,7 +30,13 @@ class RoomTypeController {
                 new BaseResponse(RoomTypeMessages.CREATE_ROOM_TYPE_SUCCESS, newRoomType)
             );
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomTypeMessages.CREATE_ROOM_TYPE_ERROR, error));
+            res.status(500).send(
+                new BaseResponse(
+                    RoomTypeMessages.CREATE_ROOM_TYPE_ERROR,
+                    undefined,
+                    error as APIError
+                )
+            );
         }
     }
 
@@ -40,7 +49,9 @@ class RoomTypeController {
                 new BaseResponse(RoomTypeMessages.UPDATE_ROOM_TYPE_SUCCESS, updatedRoomType)
             );
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomTypeMessages.UPDATE_ROOM_TYPE_ERROR, error));
+            res.status(500).send(
+                new BaseResponse(RoomTypeMessages.UPDATE_ROOM_TYPE_ERROR, error as APIError)
+            );
         }
     }
 
@@ -53,7 +64,9 @@ class RoomTypeController {
                 new BaseResponse(RoomTypeMessages.DELETE_ROOM_TYPE_SUCCESS, deletedRoomType)
             );
         } catch (error) {
-            res.status(500).send(new BaseResponse(RoomTypeMessages.DELETE_ROOM_TYPE_ERROR, error));
+            res.status(500).send(
+                new BaseResponse(RoomTypeMessages.DELETE_ROOM_TYPE_ERROR, error as APIError)
+            );
         }
     }
 }

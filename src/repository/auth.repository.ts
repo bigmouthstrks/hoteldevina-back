@@ -1,10 +1,8 @@
 import { User, PrismaClient } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AuthMessages } from '../constants/auth-messages';
 import { UserData } from '../models/user';
 import { APIError } from '../api-error';
-
-const prisma = new PrismaClient();
+import prisma from '../utils/prisma-client-wrapper';
 
 class AuthRepository {
     async register(userData: UserData): Promise<User> {
@@ -13,7 +11,8 @@ class AuthRepository {
                 data: userData,
             })
             .catch((error) => {
-                throw new APIError(AuthMessages.REGISTER_ERROR, error.code);
+                console.error(error);
+                throw new APIError(AuthMessages.REGISTER_ERROR, 500);
             });
         const { password: _, ...userWithoutPassword } = user;
         return userWithoutPassword as User;
@@ -25,7 +24,8 @@ class AuthRepository {
                 where: { email },
             })
             .catch((error) => {
-                throw new APIError(AuthMessages.USER_NOT_FOUND, error.code);
+                console.error(error);
+                throw new APIError(AuthMessages.USER_NOT_FOUND, 500);
             });
         return user;
     }
@@ -37,7 +37,8 @@ class AuthRepository {
                 data: { password: newPassword },
             })
             .catch((error) => {
-                throw new APIError(AuthMessages.UNABLE_TO_UPDATE_USER, error.code);
+                console.error(error);
+                throw new APIError(AuthMessages.UNABLE_TO_UPDATE_USER, 500);
             });
         return user;
     }

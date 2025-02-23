@@ -2,49 +2,57 @@ import { Passenger, PrismaClient } from '@prisma/client';
 import { PassengerData } from '../models/passenger';
 import { PassengerMessages } from '../constants/passenger-messages';
 import { APIError } from '../api-error';
-
-const prisma = new PrismaClient();
+import prisma from '../utils/prisma-client-wrapper';
 
 class PassengerRepository {
-    async getPassenger(passengerId: Number): Promise<Passenger | null> {
-        try {
-            const passenger = await prisma.passenger.findUnique({
+    async getPassenger(passengerId: Number): Promise<Passenger> {
+        const passenger = await prisma.passenger
+            .findUnique({
                 where: { passengerId: Number(passengerId) },
+            })
+            .catch((error) => {
+                console.error(error);
+                throw new APIError(PassengerMessages.PASSENGER_NOT_FOUND, 500);
             });
-            if (!passenger) {
-                throw new APIError(PassengerMessages.GET_PASSENGER_ERROR);
-            }
-            return passenger;
-        } catch (error) {
-            throw new APIError(PassengerMessages.GET_PASSENGER_ERROR);
+        if (!passenger) {
+            throw new APIError(PassengerMessages.PASSENGER_NOT_FOUND, 500);
         }
+        return passenger;
     }
 
     async createPassenger(passengerData: PassengerData): Promise<Passenger> {
-        try {
-            return await prisma.passenger.create({ data: passengerData });
-        } catch (error) {
-            throw new APIError(PassengerMessages.CREATE_PASSENGER_ERORR);
-        }
+        const passenger = await prisma.passenger
+            .create({
+                data: passengerData,
+            })
+            .catch((error) => {
+                console.error(error);
+                throw new APIError(PassengerMessages.CREATE_PASSENGER_ERROR, 500);
+            });
+        return passenger;
     }
 
     async deletePassenger(passengerId: Number): Promise<Passenger> {
-        try {
-            return await prisma.passenger.delete({ where: { passengerId: Number(passengerId) } });
-        } catch (error) {
-            throw new APIError(PassengerMessages.DELETE_PASSENGER_ERROR);
-        }
+        const passenger = await prisma.passenger
+            .delete({ where: { passengerId: Number(passengerId) } })
+            .catch((error) => {
+                console.error(error);
+                throw new APIError(PassengerMessages.DELETE_PASSENGER_ERROR, 500);
+            });
+        return passenger;
     }
 
     async updatePassenger(passengerId: Number, passenger: PassengerData): Promise<Passenger> {
-        try {
-            return await prisma.passenger.update({
+        const updatedPassenger = await prisma.passenger
+            .update({
                 where: { passengerId: Number(passengerId) },
                 data: passenger,
+            })
+            .catch((error) => {
+                console.error(error);
+                throw new APIError(PassengerMessages.UPDATE_PASSENGER_ERROR, 500);
             });
-        } catch (error) {
-            throw new APIError(PassengerMessages.UPDATE_PASSENGER_ERROR);
-        }
+        return updatedPassenger;
     }
 }
 export default new PassengerRepository();

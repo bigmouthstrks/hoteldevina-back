@@ -37,13 +37,19 @@ class AuthController {
                     res.status(200).send(new BaseResponse(AuthMessages.LOGIN_SUCCESS, { token }));
                     return;
                 } else {
-                    res.status(500).send(new BaseResponse(AuthMessages.INVALID_CREDENTIALS));
+                    res.status(500).send(
+                        new BaseResponse(
+                            AuthMessages.INVALID_CREDENTIALS,
+                            undefined,
+                            new APIError(AuthMessages.INVALID_CREDENTIALS, 401)
+                        )
+                    );
                     return;
                 }
             }
             res.status(404).send(
                 new BaseResponse(
-                    AuthMessages.INVALID_CREDENTIALS,
+                    AuthMessages.USER_NOT_FOUND,
                     undefined,
                     new APIError(AuthMessages.USER_NOT_FOUND, 404)
                 )
@@ -63,7 +69,9 @@ class AuthController {
 
             res.status(200).send(new BaseResponse(AuthMessages.RESET_PASSWORD_SUCCESS));
         } catch (error) {
-            res.status(500).send(new BaseResponse(AuthMessages.RESET_PASSWORD_ERROR, error));
+            res.status(500).send(
+                new BaseResponse(AuthMessages.RESET_PASSWORD_ERROR, undefined, error as APIError)
+            );
         }
     }
 }
