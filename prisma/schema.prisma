@@ -7,17 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Worker {
-  workerId       Int           @id @default(autoincrement())
-  rut            Int
-  name           String
-  lastName       String
-  email          String
-  positionId     Int
-  contractTypeId Int
-  reservations   Reservation[]
-}
-
 model RoomType {
   roomTypeId     Int           @id @default(autoincrement())
   name           String
@@ -40,27 +29,14 @@ model Room {
   roomType    RoomType @relation(fields: [roomTypeId], references: [roomTypeId])
 }
 
-model Passenger {
-  passengerId    Int           @id @default(autoincrement())
-  documentType   String?
-  documentNumber String?
-  firstName      String
-  lastName       String
-  email          String?
-  reservations   Reservation[]
-}
-
 model Reservation {
   reservationId       Int               @id @default(autoincrement())
   checkIn             DateTime
   checkOut            DateTime
-  passengers          Passenger[]
   roomTypeId          Int
   roomType            RoomType          @relation(fields: [roomTypeId], references: [roomTypeId])
   userId              Int
   user                User              @relation(fields: [userId], references: [userId])
-  workerId            Int
-  worker              Worker            @relation(fields: [workerId], references: [workerId])
   reservationStatusId Int
   reservationStatus   ReservationStatus @relation(fields: [reservationId], references: [reservationStatusId])
 }
@@ -69,7 +45,10 @@ model User {
   userId         Int           @id @default(autoincrement())
   email          String        @unique
   password       String
+  firstName      String?
+  lastName       String?
   role           String
+  phoneNumber    String?
   documentType   String?
   documentNumber String?
   reservations   Reservation[]
