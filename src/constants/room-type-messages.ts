@@ -5,6 +5,8 @@ export enum RoomTypeMessages {
     UPDATE_ROOM_TYPE_ERROR = 'No se pudo actualizar el tipo de habitación',
     GET_ROOM_TYPE_SUCCESS = 'Tipo de habitación encontrado con éxito',
     GET_ROOM_TYPE_ERROR = 'No se pudo encontrar el tipo de habitación',
+    GET_ROOM_TYPES_SUCCESS = 'Tipo de habitación encontrado con éxito',
+    GET_ROOM_TYPES_ERROR = 'No se pudo encontrar el tipo de habitación',
     DELETE_ROOM_TYPE_SUCCESS = 'Tipo de habitación eliminado con éxito',
     DELETE_ROOM_TYPE_ERROR = 'No se pudo eliminar el tipo de habitación',
     REPOSITORY_GET_ROOM_TYPE_ERROR = 'No se pudo encontrar el tipo de habitación',

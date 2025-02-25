@@ -69,6 +69,24 @@ class RoomTypeController {
             );
         }
     }
+
+    async getRoomTypes(req: Request, res: Response): Promise<void> {
+        try {
+            const roomTypes = await roomTypeRepository.getRoomTypes();
+
+            res.status(200).send(
+                new BaseResponse(RoomTypeMessages.GET_ROOM_TYPES_SUCCESS, roomTypes)
+            );
+        } catch (error) {
+            res.status(500).send(
+                new BaseResponse(
+                    RoomTypeMessages.GET_ROOM_TYPES_ERROR,
+                    undefined,
+                    error as APIError
+                )
+            );
+        }
+    }
 }
 
 export default new RoomTypeController();

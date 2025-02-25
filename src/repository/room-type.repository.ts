@@ -5,6 +5,15 @@ import { APIError } from '../api-error';
 import prisma from '../utils/prisma-client-wrapper';
 
 class RoomTypeRepository {
+    async getRoomTypes(): Promise<RoomType[]> {
+        try {
+            return await prisma.roomType.findMany();
+        } catch (error) {
+            console.error(error);
+            throw new APIError(RoomTypeMessages.GET_ROOM_TYPES_ERROR, 500);
+        }
+    }
+
     async getRoomType(roomTypeId: Number): Promise<RoomType | null> {
         try {
             const roomType = await prisma.roomType.findUnique({
