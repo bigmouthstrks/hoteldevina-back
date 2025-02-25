@@ -45,10 +45,10 @@ model User {
   userId         Int           @id @default(autoincrement())
   email          String        @unique
   password       String
-  firstName      String?
-  lastName       String?
+  firstName      String
+  lastName       String
   role           String
-  phoneNumber    String?
+  phoneNumber    String
   documentType   String?
   documentNumber String?
   reservations   Reservation[]

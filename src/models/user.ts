@@ -5,6 +5,7 @@ export interface UserData {
     email: string;
     password: string;
     role: string;
+    phoneNumber: string;
     documentType?: string;
     documentNumber?: string;
 }
