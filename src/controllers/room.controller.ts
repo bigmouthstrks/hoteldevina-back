@@ -1,4 +1,4 @@
-import { RoomData } from '../models/room';
+import { RoomData } from '../models/Room/room';
 import { Request, Response } from 'express';
 import { RoomMessages } from '../constants/room-messages';
 import { BaseResponse } from '../base-response';

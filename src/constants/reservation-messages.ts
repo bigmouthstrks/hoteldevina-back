@@ -1,4 +1,12 @@
 export enum ReservationMessages {
     SIMULATION_SUCCESS = 'Simulación realizada con éxito',
     SIMULATION_ERROR = 'No se pudo completar la simulación',
+    RESERVATION_CREATED = 'Reserva creada con éxito',
+    RESERVATION_CREATION_ERROR = 'Error al crear la reserva',
+    RESERVATION_FOUND = 'Reserva encontrada con éxito',
+    RESERVATION_FETCH_ERROR = 'Error al obtener la reserva',
+    RESERVATIONS_FOUND = 'Reservas encontradas con éxito',
+    RESERVATIONS_FETCH_ERROR = 'Error al obtener las reservas',
+    RESERVATION_UPDATED = 'Reserva actualizada con éxito',
+    RESERVATION_UPDATE_ERROR = 'Error al actualizar la reserva',
 }

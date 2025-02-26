@@ -1,5 +1,5 @@
 import { RoomType, PrismaClient } from '@prisma/client';
-import { RoomTypeData } from '../models/room-type';
+import { RoomTypeParameters } from '../models/Room/room-type';
 import { RoomTypeMessages } from '../constants/room-type-messages';
 import { APIError } from '../api-error';
 import prisma from '../utils/prisma-client-wrapper';
@@ -29,7 +29,7 @@ class RoomTypeRepository {
         }
     }
 
-    async createRoomType(roomTypeData: RoomTypeData): Promise<RoomType> {
+    async createRoomType(roomTypeData: RoomTypeParameters): Promise<RoomType> {
         try {
             return await prisma.roomType.create({ data: roomTypeData });
         } catch (error) {
@@ -47,7 +47,7 @@ class RoomTypeRepository {
         }
     }
 
-    async updateRoomType(roomType: RoomTypeData): Promise<RoomType> {
+    async updateRoomType(roomType: RoomTypeParameters): Promise<RoomType> {
         try {
             return await prisma.roomType.update({
                 where: { roomTypeId: Number(roomType.roomTypeId) },

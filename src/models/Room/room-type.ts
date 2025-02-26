@@ -1,4 +1,4 @@
-export interface RoomTypeData {
+export interface RoomTypeParameters {
     roomTypeId: number;
     name: string;
     description?: string;

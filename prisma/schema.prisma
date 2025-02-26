@@ -8,37 +8,64 @@ datasource db {
 }
 
 model RoomType {
-  roomTypeId     Int           @id @default(autoincrement())
+  roomTypeId     Int      @id @default(autoincrement())
   name           String
   description    String?
-  singleBedCount Int
-  queenBedCount  Int
-  features       String[]
+  singleBedCount Int      @default(0)
+  queenBedCount  Int      @default(0)
+  features       String[] @default([])
   price          Int
   promotionPrice Int
   capacity       Int
+  images         String[] @default([])
   rooms          Room[]
-  reservations   Reservation[]
 }
 
 model Room {
   roomId      Int      @id @default(autoincrement())
   number      Int
-  isAvailable Boolean
+  isAvailable Boolean  @default(true)
   roomTypeId  Int
   roomType    RoomType @relation(fields: [roomTypeId], references: [roomTypeId])
+
+  // Explicit Many-to-Many Relationship
+  reservations ReservationRoom[]
 }
 
 model Reservation {
   reservationId       Int               @id @default(autoincrement())
   checkIn             DateTime
   checkOut            DateTime
-  roomTypeId          Int
-  roomType            RoomType          @relation(fields: [roomTypeId], references: [roomTypeId])
+  checkInWorker       String?
+  checkOutWorker      String?
+  paymentMethodId     Int?
+  paymentMethod       PaymentMethod?    @relation(fields: [paymentMethodId], references: [paymentMethodId])
   userId              Int
   user                User              @relation(fields: [userId], references: [userId])
-  reservationStatusId Int
-  reservationStatus   ReservationStatus @relation(fields: [reservationId], references: [reservationStatusId])
+  reservationStatusId Int               @default(5)
+  reservationStatus   ReservationStatus @relation(fields: [reservationStatusId], references: [reservationStatusId])
+
+  // New Fields
+  passengerNames String[] @default([])
+  passengerCount Int
+  nightsCount    Int
+  totalPrice     Int
+
+  // Many-to-Many Relationship with Room
+  rooms ReservationRoom[]
+
+  // 1:1 Relationship with Voucher (Voucher is optional)
+  voucher Voucher?
+}
+
+model ReservationRoom {
+  roomId        Int
+  reservationId Int
+
+  room        Room        @relation(fields: [roomId], references: [roomId], onDelete: Cascade)
+  reservation Reservation @relation(fields: [reservationId], references: [reservationId], onDelete: Cascade)
+
+  @@id([roomId, reservationId]) // Composite Primary Key
 }
 
 model User {
@@ -47,7 +74,7 @@ model User {
   password       String
   firstName      String
   lastName       String
-  role           String
+  role           String        @default("passenger")
   phoneNumber    String
   documentType   String?
   documentNumber String?
@@ -59,4 +86,24 @@ model ReservationStatus {
   name                String
   description         String?
   reservations        Reservation[]
+}
+
+model Voucher {
+  voucherId        Int     @id @default(autoincrement())
+  documentType     String
+  documentNumber   String
+  type             String  @default("Boleta")
+  companyName      String?
+  address          String?
+  businessActivity String?
+
+  // 1:1 Relationship with Reservation
+  reservationId Int         @unique
+  reservation   Reservation @relation(fields: [reservationId], references: [reservationId], onDelete: Cascade)
+}
+
+model PaymentMethod {
+  paymentMethodId Int           @id @default(autoincrement())
+  name            String
+  reservations    Reservation[]
 }
