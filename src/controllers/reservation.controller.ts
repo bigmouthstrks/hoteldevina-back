@@ -8,8 +8,8 @@ import { BaseResponse } from '../base-response';
 import { APIError } from '../api-error';
 import reservationRepository from '../repository/reservation.repository';
 import { SimulationParameters } from '../models/Reservation/simulation-parameters';
-import { Reservation, Room } from '@prisma/client';
 import reservationsUtils from '../utils/reservations-utils';
+import { CheckInParameters } from '../models/check-in-parameters';
 
 class ReservationController {
     async getSimulation(req: Request, res: Response): Promise<void> {
@@ -33,6 +33,9 @@ class ReservationController {
             const checkInDate = new Date(simulationData.checkIn);
             const checkOutDate = new Date(simulationData.checkOut);
             const passengerNumber = simulationData.passengerNumber;
+
+            console.log(checkInDate);
+            console.log(checkOutDate);
 
             if (
                 isNaN(checkInDate.getTime()) ||
@@ -72,7 +75,7 @@ class ReservationController {
                     new BaseResponse(
                         'Sin opciones disponibles',
                         undefined,
-                        new APIError('Error interno, se esperaba un array.', 400)
+                        new APIError('Error interno, se esperaba un array.', 500)
                     )
                 );
                 return;
@@ -86,7 +89,7 @@ class ReservationController {
                             new BaseResponse(
                                 'Habitación o tipo de habitación no está definido',
                                 undefined,
-                                new APIError('Cada habitación', 500)
+                                new APIError('Cada habitación debe tener un tipo válido', 500)
                             )
                         );
                         return;
@@ -137,8 +140,10 @@ class ReservationController {
                             description: room.roomType.description,
                             capacity: room.roomType.capacity,
                             features: room.roomType.features, // Fixed incorrect property access
-                            price: room.roomType.price,
-                            promotionPrice: room.roomType.promotionPrice,
+                            price: reservationsUtils.formatMoneyAmount(room.roomType.price),
+                            promotionPrice: reservationsUtils.formatMoneyAmount(
+                                room.roomType.promotionPrice
+                            ),
                         },
                     };
                 });
@@ -149,10 +154,10 @@ class ReservationController {
                         simulationData.checkOut
                     ),
                     passengerNumber,
-                    checkIn: simulationData.checkIn,
-                    checkOut: simulationData.checkOut,
+                    checkIn: reservationsUtils.formatDate(checkInDate),
+                    checkOut: reservationsUtils.formatDate(checkOutDate),
                     totalCapacity,
-                    totalPrice,
+                    totalPrice: reservationsUtils.formatMoneyAmount(totalPrice),
                     rooms,
                 };
             });
@@ -161,9 +166,9 @@ class ReservationController {
                 new BaseResponse(ReservationMessages.SIMULATION_SUCCESS, formattedCombinations)
             );
         } catch (error) {
-            console.error('Error in getSimulation:', error);
-            res.status(500).json(
-                new BaseResponse(ReservationMessages.SIMULATION_ERROR, undefined, error as APIError)
+            const e = error as APIError;
+            res.status(Number(e.code)).send(
+                new BaseResponse(ReservationMessages.SIMULATION_ERROR, undefined, e)
             );
         }
     }
@@ -174,24 +179,26 @@ class ReservationController {
 
             // Ensure valid data is provided
             if (!reservationData) {
-                res.status(400).json({ error: 'Invalid reservation data.' });
+                res.status(400).send(
+                    new BaseResponse(
+                        'Invalid reservation data.',
+                        undefined,
+                        new APIError('Invalid reservation data.', 400)
+                    )
+                );
                 return;
             }
 
             // Call repository to create reservation
             const newReservation = await reservationRepository.createReservation(reservationData);
 
-            res.status(201).json(
+            res.status(201).send(
                 new BaseResponse(ReservationMessages.RESERVATION_CREATED, newReservation)
             );
         } catch (error) {
-            console.error('Error in createReservation:', error);
-            res.status(500).json(
-                new BaseResponse(
-                    ReservationMessages.RESERVATION_CREATION_ERROR,
-                    undefined,
-                    error as APIError
-                )
+            const e = error as APIError;
+            res.status(Number(e.code)).send(
+                new BaseResponse(ReservationMessages.RESERVATION_CREATION_ERROR, undefined, e)
             );
         }
     }
@@ -204,7 +211,7 @@ class ReservationController {
 
             // Ensure valid data is provided
             if (!simulationData) {
-                res.status(400).json({ error: 'Invalid reservation data.' });
+                res.status(400).send({ error: 'Invalid reservation data.' });
                 return;
             }
 
@@ -221,19 +228,20 @@ class ReservationController {
                 roomIds: simulationData.roomIds,
             };
 
-            const newReservation = await reservationRepository.createReservation(reservationData);
+            var newReservation = await reservationRepository.createReservation(reservationData);
 
-            res.status(201).json(
-                new BaseResponse(ReservationMessages.RESERVATION_CREATED, newReservation)
+            res.status(201).send(
+                new BaseResponse(ReservationMessages.RESERVATION_CREATED, {
+                    ...newReservation,
+                    totalPrice: reservationsUtils.formatMoneyAmount(newReservation.totalPrice),
+                    checkIn: reservationsUtils.formatDate(newReservation.checkIn),
+                    checkOut: reservationsUtils.formatDate(newReservation.checkOut),
+                })
             );
         } catch (error) {
-            console.error('Error in createReservation:', error);
-            res.status(500).json(
-                new BaseResponse(
-                    ReservationMessages.RESERVATION_CREATION_ERROR,
-                    undefined,
-                    error as APIError
-                )
+            const e = error as APIError;
+            res.status(Number(e.code)).send(
+                new BaseResponse(ReservationMessages.RESERVATION_CREATION_ERROR, undefined, e)
             );
         }
     }
@@ -253,16 +261,17 @@ class ReservationController {
             }
 
             res.status(200).json(
-                new BaseResponse(ReservationMessages.RESERVATION_FOUND, reservation)
+                new BaseResponse(ReservationMessages.RESERVATION_FOUND, {
+                    ...reservation,
+                    totalPrice: reservationsUtils.formatMoneyAmount(reservation.totalPrice),
+                    checkIn: reservationsUtils.formatDate(reservation.checkIn),
+                    checkOut: reservationsUtils.formatDate(reservation.checkOut),
+                })
             );
         } catch (error) {
-            console.error('Error in getReservationById:', error);
-            res.status(500).json(
-                new BaseResponse(
-                    ReservationMessages.RESERVATION_FETCH_ERROR,
-                    undefined,
-                    error as APIError
-                )
+            const e = error as APIError;
+            res.status(Number(e.code)).json(
+                new BaseResponse(ReservationMessages.RESERVATION_FETCH_ERROR, undefined, e)
             );
         }
     }
@@ -278,53 +287,174 @@ class ReservationController {
             }
 
             const reservations = await reservationRepository.getReservationsByStatusId(statusId);
-            res.status(200).json(
-                new BaseResponse(ReservationMessages.RESERVATIONS_FOUND, reservations)
-            );
+            if (reservations && reservations.length > 0) {
+                const updatedReservations = reservations.map((reservation) => {
+                    return {
+                        ...reservation,
+                        totalPrice: reservationsUtils.formatMoneyAmount(reservation.totalPrice),
+                        checkIn: reservationsUtils.formatDate(reservation.checkIn),
+                        checkOut: reservationsUtils.formatDate(reservation.checkOut),
+                    };
+                });
+
+                res.status(200).send(
+                    new BaseResponse(ReservationMessages.RESERVATIONS_FOUND, updatedReservations)
+                );
+            } else {
+                res.status(404).send(
+                    new BaseResponse(
+                        ReservationMessages.RESERVATIONS_NOT_FOUND,
+                        undefined,
+                        new APIError('No se encontraron reservas para este tipo')
+                    )
+                );
+            }
         } catch (error) {
             const e = error as APIError;
-            res.status(Number(e.code)).json(
-                new BaseResponse(
-                    ReservationMessages.RESERVATIONS_FETCH_ERROR,
-                    undefined,
-                    error as APIError
-                )
+            res.status(Number(e.code)).send(
+                new BaseResponse(ReservationMessages.RESERVATIONS_FETCH_ERROR, undefined, e)
             );
         }
     }
 
-    async updateReservationStatus(req: Request, res: Response): Promise<void> {
+    async updateReservationById(req: Request, res: Response): Promise<void> {
         try {
             const reservationId = Number(req.params.id);
-            const { statusId } = req.body;
+            const reservationParameters: CreateReservationParameters = req.body;
 
-            if (isNaN(reservationId) || isNaN(statusId)) {
-                res.status(400).send(new BaseResponse('Invalid reservation ID or status ID.', 400));
+            if (!reservationId || !reservationParameters.reservationStatusId) {
+                res.status(400).send(
+                    new BaseResponse(
+                        'Invalid reservation ID or status ID.',
+                        undefined,
+                        new APIError('Id de reserva o de estado de reserva nulo o inexistente', 404)
+                    )
+                );
                 return;
             }
 
-            const updatedReservation = await reservationRepository.updateReservationStatus(
+            const updatedReservation = await reservationRepository.updateReservationById(
                 reservationId,
-                statusId
+                reservationParameters
             );
 
             if (!updatedReservation) {
-                res.status(404).send(new BaseResponse('Reservation not found.', 404));
+                res.status(404).send(
+                    new BaseResponse(
+                        'Reservation not found.',
+                        undefined,
+                        new APIError('La reserva no se pudo actualizar', 404)
+                    )
+                );
                 return;
             }
 
-            res.status(200).json(
+            res.status(200).send(
                 new BaseResponse(ReservationMessages.RESERVATION_UPDATED, updatedReservation)
             );
         } catch (error) {
-            console.error('Error in updateReservationStatus:', error);
-            res.status(500).json(
+            const e = error as APIError;
+            res.status(Number(e.code)).send(
+                new BaseResponse(ReservationMessages.RESERVATION_UPDATE_ERROR, undefined, e)
+            );
+        }
+    }
+
+    async checkIn(req: Request, res: Response): Promise<void> {
+        const reservationId = req.params.id;
+        var checkInData: CheckInParameters = req.body;
+
+        if (!reservationId || !checkInData.checkInWorker) {
+            res.status(400).send(
                 new BaseResponse(
-                    ReservationMessages.RESERVATION_UPDATE_ERROR,
+                    'Faltan datos requeridos: reservationId y checkInWorker',
                     undefined,
-                    error as APIError
+                    new APIError('Error al validar parámetros de entrada', 400)
                 )
             );
+            return;
+        }
+
+        const parsedReservationId = Number(reservationId);
+
+        if (isNaN(parsedReservationId)) {
+            res.status(400).send(
+                new BaseResponse(
+                    'reservationId debe ser un número válido',
+                    undefined,
+                    new APIError('Error al validar parámetros de entrada', 400)
+                )
+            );
+            return;
+        }
+
+        const arrivalTime = reservationsUtils.getTimeOnly(checkInData.arrivalTime);
+
+        try {
+            const reservation = await reservationRepository.registerCheckIn(
+                parsedReservationId,
+                checkInData,
+                arrivalTime
+            );
+            res.status(200).send({
+                message: ReservationMessages.CHECK_IN_SUCCESS,
+                reservation,
+            });
+            return;
+        } catch (error) {
+            const e = error as APIError;
+            res.status(Number(e.code)).send(
+                new BaseResponse('Error al realizar check-in', undefined, e)
+            );
+            return;
+        }
+    }
+
+    async checkOut(req: Request, res: Response): Promise<void> {
+        const reservationId = req.params.id;
+        const { checkOutWorker, leaveTime } = req.body;
+
+        if (!reservationId || !checkOutWorker) {
+            res.status(400).send(
+                new BaseResponse(
+                    'Faltan datos requeridos: reservationId y checkInWorker',
+                    undefined,
+                    new APIError('Error al validar parámetros de entrada', 400)
+                )
+            );
+            return;
+        }
+
+        const parsedReservationId = Number(reservationId);
+
+        if (isNaN(parsedReservationId)) {
+            res.status(400).send(
+                new BaseResponse(
+                    'reservationId debe ser un número válido',
+                    undefined,
+                    new APIError('Error al validar parámetros de entrada', 500)
+                )
+            );
+            return;
+        }
+
+        try {
+            const reservation = await reservationRepository.registerCheckOut(
+                parsedReservationId,
+                checkOutWorker,
+                leaveTime
+            );
+            res.status(200).json({
+                message: ReservationMessages.CHECK_OUT_SUCCESS,
+                reservation,
+            });
+            return;
+        } catch (error) {
+            const e = error as APIError;
+            res.status(Number(e.code)).send(
+                new BaseResponse('Error al realizar check-out', undefined, e)
+            );
+            return;
         }
     }
 }

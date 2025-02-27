@@ -9,4 +9,7 @@ export enum ReservationMessages {
     RESERVATIONS_FETCH_ERROR = 'Error al obtener las reservas',
     RESERVATION_UPDATED = 'Reserva actualizada con éxito',
     RESERVATION_UPDATE_ERROR = 'Error al actualizar la reserva',
+    CHECK_IN_SUCCESS = 'El check in se realizó correctamente',
+    CHECK_OUT_SUCCESS = 'El check out se realizó correctamente',
+    RESERVATIONS_NOT_FOUND = 'No se encontraron reservas',
 }

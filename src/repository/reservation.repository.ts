@@ -7,6 +7,7 @@ import {
 import prisma from '../utils/prisma-client-wrapper';
 import { ReservationMessages } from '../constants/reservation-messages';
 import reservationsUtils from '../utils/reservations-utils';
+import { CheckInParameters } from '../models/check-in-parameters';
 
 class ReservationRepository {
     async getSimulation(passengerNumber: number, checkInDate: Date, checkOutDate: Date) {
@@ -131,7 +132,7 @@ class ReservationRepository {
         return reservations;
     }
 
-    async updateReservationStatus(
+    async updateReservationById(
         reservationId: number,
         reservationData: CreateReservationParameters
     ): Promise<Reservation | null> {
@@ -141,6 +142,139 @@ class ReservationRepository {
         });
 
         return reservation;
+    }
+
+    async registerCheckIn(
+        reservationId: number,
+        checkInData: CheckInParameters,
+        arrivalTime: string
+    ): Promise<Reservation> {
+        const {
+            reservationStatusId = 2,
+            checkInWorker,
+            passengerNames = [],
+            passengerCount,
+            nightsCount,
+            totalPrice,
+            carPatent,
+            address,
+            city,
+            documentType,
+            documentNumber,
+            voucher,
+            roomIds,
+        } = checkInData;
+
+        const reservation = await prisma.reservation.findUnique({
+            where: { reservationId },
+            include: { rooms: { include: { room: true } } },
+        });
+
+        if (!reservation) {
+            throw new APIError(`No se encontró la reserva con ID ${reservationId}`, 404);
+        }
+
+        // Opcional: Validar que esté en un estado correcto para hacer check-in
+        if (reservation.reservationStatusId !== 2) {
+            // 1 = Reservada
+            throw new APIError('La reserva no está en un estado válido para hacer check-in', 400);
+        }
+
+        if (documentType || documentNumber) {
+            await prisma.user.update({
+                where: { userId: reservation.userId },
+                data: {
+                    documentType: documentType,
+                    documentNumber: documentNumber,
+                },
+            });
+        }
+
+        // Actualizar la Reservation con los datos del check-in
+        const updatedReservation = await prisma.reservation.update({
+            where: { reservationId: reservationId },
+            data: {
+                reservationStatusId,
+                checkInWorker,
+                passengerNames,
+                passengerCount,
+                nightsCount,
+                totalPrice,
+                carPatent,
+                address,
+                city,
+                arrivalTime,
+                rooms: {
+                    set: roomIds.map((roomId) => ({
+                        roomId_reservationId: { roomId, reservationId },
+                    })),
+                },
+                voucher: {
+                    create: {
+                        documentType: voucher.documentType ?? documentType ?? '',
+                        documentNumber: voucher.documentNumber ?? documentNumber ?? '',
+                        companyName: voucher.companyName,
+                        businessActivity: voucher.businessActivity,
+                        address: voucher.address ?? address,
+                        city: voucher.city ?? city,
+                    },
+                },
+            },
+            include: {
+                rooms: true,
+                voucher: true,
+                user: true,
+            },
+        });
+
+        await prisma.room.updateMany({
+            where: { roomId: { in: roomIds } },
+            data: { isAvailable: false },
+        });
+
+        return updatedReservation;
+    }
+
+    async registerCheckOut(
+        reservationId: number,
+        checkOutWorker: string,
+        leaveTime: string
+    ): Promise<Reservation> {
+        const reservation = await prisma.reservation.findUnique({
+            where: { reservationId },
+            include: { rooms: { include: { room: true } } },
+        });
+
+        if (!reservation) {
+            throw new APIError(`No se encontró la reserva con ID ${reservationId}`, 404);
+        }
+
+        // Validar que esté en un estado válido para hacer check-out
+        if (reservation.reservationStatusId !== 1) {
+            // 2 = En Curso
+            throw new APIError('La reserva no está en un estado válido para hacer check-out', 400);
+        }
+
+        // Actualizar la reserva con el checkOutWorker y cambiar el estado a "Finalizada"
+        const updatedReservation = await prisma.reservation.update({
+            where: { reservationId },
+            data: {
+                checkOutWorker,
+                reservationStatusId: 3, // 3 = Finalizada
+                leaveTime: leaveTime,
+            },
+            include: { rooms: { include: { room: true } } },
+        });
+
+        // Marcar las habitaciones como disponibles nuevamente
+        const roomIds = reservation.rooms.map((r) => r.roomId);
+
+        await prisma.room.updateMany({
+            where: { roomId: { in: roomIds } },
+            data: { isAvailable: true },
+        });
+
+        return updatedReservation;
     }
 }
 

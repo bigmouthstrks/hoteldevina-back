@@ -50,6 +50,11 @@ model Reservation {
   passengerCount Int
   nightsCount    Int
   totalPrice     Int
+  carPatent      String?
+  address        String?
+  city           String?
+  arrivalTime    String?
+  leaveTime      String?
 
   // Many-to-Many Relationship with Room
   rooms ReservationRoom[]
@@ -96,6 +101,7 @@ model Voucher {
   companyName      String?
   address          String?
   businessActivity String?
+  city             String?
 
   // 1:1 Relationship with Reservation
   reservationId Int         @unique
