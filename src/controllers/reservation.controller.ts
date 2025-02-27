@@ -39,16 +39,24 @@ class ReservationController {
                 isNaN(checkOutDate.getTime()) ||
                 checkInDate >= checkOutDate
             ) {
-                res.status(400).json({
-                    error: 'Invalid check-in/check-out dates. Check-in must be before check-out.',
-                });
+                res.status(400).send(
+                    new BaseResponse(
+                        'Fecha de check-in o check-out no es válida. La fecha de check-out debe ser posterior a la de check-in.',
+                        undefined,
+                        new APIError('La fecha de llegada o salida no es válida', 400)
+                    )
+                );
                 return;
             }
 
             if (typeof passengerNumber !== 'number' || passengerNumber <= 0) {
-                res.status(400).json({
-                    error: 'Passenger number must be a positive number.',
-                });
+                res.status(400).send(
+                    new BaseResponse(
+                        'El número de pasajeros debe ser un número válido',
+                        undefined,
+                        new APIError('El número de pasajeros debe ser un número mayor a 0', 400)
+                    )
+                );
                 return;
             }
 
@@ -60,14 +68,28 @@ class ReservationController {
             );
 
             if (!Array.isArray(roomCombinations)) {
-                throw new Error('Invalid repository response: expected an array.');
+                res.status(500).send(
+                    new BaseResponse(
+                        'Sin opciones disponibles',
+                        undefined,
+                        new APIError('Error interno, se esperaba un array.', 400)
+                    )
+                );
+                return;
             }
 
             // Calculate total capacity for each combination
             const combinationsWithCapacity = roomCombinations.map((combination) => {
                 const totalCapacity = combination.reduce((sum: number, room: any) => {
                     if (!room || !room.roomType) {
-                        throw new Error('Each room must have a valid room type.');
+                        res.status(500).send(
+                            new BaseResponse(
+                                'Habitación o tipo de habitación no está definido',
+                                undefined,
+                                new APIError('Cada habitación', 500)
+                            )
+                        );
+                        return;
                     }
                     return sum + room.roomType.capacity;
                 }, 0);
@@ -122,6 +144,10 @@ class ReservationController {
                 });
 
                 return {
+                    nightsCount: reservationsUtils.getNightsCount(
+                        simulationData.checkIn,
+                        simulationData.checkOut
+                    ),
                     passengerNumber,
                     checkIn: simulationData.checkIn,
                     checkOut: simulationData.checkOut,
@@ -269,7 +295,7 @@ class ReservationController {
 
     async updateReservationStatus(req: Request, res: Response): Promise<void> {
         try {
-            const reservationId = parseInt(req.params.id, 10);
+            const reservationId = Number(req.params.id);
             const { statusId } = req.body;
 
             if (isNaN(reservationId) || isNaN(statusId)) {
