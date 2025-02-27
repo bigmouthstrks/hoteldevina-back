@@ -1,5 +1,5 @@
 import { Room, PrismaClient } from '@prisma/client';
-import { RoomData } from '../models/room';
+import { RoomData } from '../models/Room/room';
 import { RoomMessages } from '../constants/room-messages';
 import { APIError } from '../api-error';
 import prisma from '../utils/prisma-client-wrapper';

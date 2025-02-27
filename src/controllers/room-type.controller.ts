@@ -1,4 +1,4 @@
-import { RoomTypeData } from '../models/room-type';
+import { RoomTypeParameters } from '../models/Room/room-type';
 import { Request, Response } from 'express';
 import { RoomTypeMessages } from '../constants/room-type-messages';
 import { BaseResponse } from '../base-response';
@@ -23,7 +23,7 @@ class RoomTypeController {
 
     async createRoomType(req: Request, res: Response): Promise<void> {
         try {
-            const roomTypeData = req.body;
+            const roomTypeData: RoomTypeParameters = req.body;
             const newRoomType = await roomTypeRepository.createRoomType(roomTypeData);
 
             res.status(200).send(
@@ -42,7 +42,7 @@ class RoomTypeController {
 
     async updateRoomType(req: Request, res: Response): Promise<void> {
         try {
-            const roomTypeData: RoomTypeData = req.body;
+            const roomTypeData: RoomTypeParameters = req.body;
             const updatedRoomType = await roomTypeRepository.updateRoomType(roomTypeData);
 
             res.status(200).send(
