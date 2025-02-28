@@ -21,10 +21,10 @@ class ReservationController {
                 !simulationData ||
                 !simulationData.checkIn ||
                 !simulationData.checkOut ||
-                !simulationData.passengerNumber
+                !simulationData.passengerCount
             ) {
                 res.status(400).json({
-                    error: 'Invalid data. Provide checkIn, checkOut, and passengerNumber.',
+                    error: 'Invalid data. Provide checkIn, checkOut, and passengerCount.',
                 });
                 return;
             }
@@ -32,10 +32,7 @@ class ReservationController {
             // Convert and validate dates
             const checkInDate = new Date(simulationData.checkIn);
             const checkOutDate = new Date(simulationData.checkOut);
-            const passengerNumber = simulationData.passengerNumber;
-
-            console.log(checkInDate);
-            console.log(checkOutDate);
+            const passengerCount = simulationData.passengerCount;
 
             if (
                 isNaN(checkInDate.getTime()) ||
@@ -52,7 +49,7 @@ class ReservationController {
                 return;
             }
 
-            if (typeof passengerNumber !== 'number' || passengerNumber <= 0) {
+            if (typeof passengerCount !== 'number' || passengerCount <= 0) {
                 res.status(400).send(
                     new BaseResponse(
                         'El número de pasajeros debe ser un número válido',
@@ -65,7 +62,7 @@ class ReservationController {
 
             // Fetch room combinations
             const roomCombinations = await reservationRepository.getSimulation(
-                passengerNumber,
+                passengerCount,
                 checkInDate,
                 checkOutDate
             );
@@ -102,7 +99,7 @@ class ReservationController {
 
             // Filter and sort room combinations
             const exactCombinations = combinationsWithCapacity.filter(
-                (combo) => combo.totalCapacity === passengerNumber
+                (combo) => combo.totalCapacity === passengerCount
             );
 
             const filteredCombinations =
@@ -110,10 +107,15 @@ class ReservationController {
 
             const sortedCombinations = filteredCombinations.sort((a, b) => {
                 return (
-                    Math.abs(a.totalCapacity - passengerNumber) -
-                    Math.abs(b.totalCapacity - passengerNumber)
+                    Math.abs(a.totalCapacity - passengerCount) -
+                    Math.abs(b.totalCapacity - passengerCount)
                 );
             });
+
+            const nightsCount = reservationsUtils.getNightsCount(
+                simulationData.checkIn,
+                simulationData.checkOut
+            );
 
             // Format response (limit to 4 combinations)
             const formattedCombinations = sortedCombinations.slice(0, 4).map((combo) => {
@@ -123,7 +125,10 @@ class ReservationController {
                     if (!room || !room.roomType) {
                         throw new Error('Each room must have a valid room type.');
                     }
-                    return sum + room.roomType.price;
+
+                    const roomType = room.roomType;
+                    const pricePerNight = roomType.price;
+                    return sum + pricePerNight * nightsCount;
                 }, 0);
 
                 const rooms = combination.map((room: any) => {
@@ -149,11 +154,8 @@ class ReservationController {
                 });
 
                 return {
-                    nightsCount: reservationsUtils.getNightsCount(
-                        simulationData.checkIn,
-                        simulationData.checkOut
-                    ),
-                    passengerNumber,
+                    nightsCount: nightsCount,
+                    passengerCount,
                     checkIn: reservationsUtils.formatDate(checkInDate),
                     checkOut: reservationsUtils.formatDate(checkOutDate),
                     totalCapacity,
@@ -207,8 +209,6 @@ class ReservationController {
         try {
             const simulationData: CommitSimulationParameters = req.body;
 
-            console.log(simulationData);
-
             // Ensure valid data is provided
             if (!simulationData) {
                 res.status(400).send({ error: 'Invalid reservation data.' });
@@ -219,7 +219,7 @@ class ReservationController {
                 userId: simulationData.userId,
                 checkIn: simulationData.checkIn,
                 checkOut: simulationData.checkOut,
-                passengerCount: simulationData.passengerNumber,
+                passengerCount: simulationData.passengerCount,
                 nightsCount: reservationsUtils.getNightsCount(
                     simulationData.checkIn,
                     simulationData.checkOut
@@ -288,7 +288,7 @@ class ReservationController {
 
             const reservations = await reservationRepository.getReservationsByStatusId(statusId);
             if (reservations && reservations.length > 0) {
-                const updatedReservations = reservations.map((reservation) => {
+                const updatedReservations = reservations.map((reservation: any) => {
                     return {
                         ...reservation,
                         totalPrice: reservationsUtils.formatMoneyAmount(reservation.totalPrice),
@@ -300,6 +300,7 @@ class ReservationController {
                 res.status(200).send(
                     new BaseResponse(ReservationMessages.RESERVATIONS_FOUND, updatedReservations)
                 );
+                return;
             } else {
                 res.status(404).send(
                     new BaseResponse(
@@ -308,6 +309,7 @@ class ReservationController {
                         new APIError('No se encontraron reservas para este tipo')
                     )
                 );
+                return;
             }
         } catch (error) {
             const e = error as APIError;

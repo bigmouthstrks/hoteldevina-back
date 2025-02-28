@@ -15,7 +15,7 @@ export interface CreateReservationParameters {
 
 export interface CommitSimulationParameters {
     userId: number;
-    passengerNumber: number;
+    passengerCount: number;
     checkIn: Date;
     checkOut: Date;
     totalCapacity: number;

@@ -47,7 +47,6 @@ class ReservationUtils {
 
             return `${day}-${month}-${year}`;
         } catch (error) {
-            console.log(error);
             throw new APIError('Error formatting date', 500);
         }
     }

@@ -10,7 +10,7 @@ import reservationsUtils from '../utils/reservations-utils';
 import { CheckInParameters } from '../models/check-in-parameters';
 
 class ReservationRepository {
-    async getSimulation(passengerNumber: number, checkInDate: Date, checkOutDate: Date) {
+    async getSimulation(passengerCount: number, checkInDate: Date, checkOutDate: Date) {
         // Obtener todas las habitaciones disponibles en el rango de fechas
         const availableRooms = await prisma.room.findMany({
             where: {
@@ -30,18 +30,18 @@ class ReservationRepository {
         });
 
         // Filtrar combinaciones de habitaciones que cumplan con la capacidad requerida
-        const combinations = this.findRoomCombinations(availableRooms, passengerNumber);
+        const combinations = this.findRoomCombinations(availableRooms, passengerCount);
 
         return combinations;
     }
 
     // Función para encontrar combinaciones de habitaciones
-    private findRoomCombinations(rooms: any[], passengerNumber: number) {
+    private findRoomCombinations(rooms: any[], passengerCount: number) {
         const combinations: any[] = [];
 
         // Función recursiva para generar combinaciones
         const backtrack = (start: number, currentCombination: any[], currentCapacity: number) => {
-            if (currentCapacity >= passengerNumber) {
+            if (currentCapacity >= passengerCount) {
                 combinations.push([...currentCombination]);
                 return;
             }
@@ -62,8 +62,6 @@ class ReservationRepository {
         try {
             const { checkIn, checkOut, userId, nightsCount, roomIds, passengerCount } =
                 reservationParameters;
-
-            console.log(reservationParameters);
             const rooms = await prisma.room.findMany({
                 where: { roomId: { in: roomIds } },
                 include: { roomType: true },
@@ -96,8 +94,7 @@ class ReservationRepository {
 
             return reservation;
         } catch (error) {
-            console.log(error);
-            throw new Error('No se pudo crear la reserva');
+            throw new APIError('No se pudo crear la reserva');
         }
     }
 
@@ -113,13 +110,17 @@ class ReservationRepository {
         return reservation;
     }
 
-    async getReservationsByStatusId(reservationStatusId: number): Promise<Reservation[] | null> {
+    async getReservationsByStatusId(reservationStatusId: number): Promise<any | null> {
         const status = await prisma.reservationStatus.findUnique({
             where: { reservationStatusId: reservationStatusId },
         });
 
         const reservations = await prisma.reservation.findMany({
             where: { reservationStatusId: reservationStatusId },
+            include: {
+                rooms: true,
+                reservationStatus: true,
+            },
         });
 
         if (!reservations || reservations.length === 0) {
