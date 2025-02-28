@@ -149,6 +149,7 @@ class ReservationController {
                             promotionPrice: reservationsUtils.formatMoneyAmount(
                                 room.roomType.promotionPrice
                             ),
+                            images: room.roomType.images,
                         },
                     };
                 });
@@ -164,14 +165,17 @@ class ReservationController {
                 };
             });
 
-            res.status(200).json(
+            res.status(200).send(
                 new BaseResponse(ReservationMessages.SIMULATION_SUCCESS, formattedCombinations)
             );
+            return;
         } catch (error) {
+            console.log(error);
             const e = error as APIError;
             res.status(Number(e.code)).send(
                 new BaseResponse(ReservationMessages.SIMULATION_ERROR, undefined, e)
             );
+            return;
         }
     }
 
@@ -256,7 +260,13 @@ class ReservationController {
 
             const reservation = await reservationRepository.getReservationById(reservationId);
             if (!reservation) {
-                res.status(404).json({ error: 'Reservation not found.' });
+                res.status(404).send(
+                    new BaseResponse(
+                        'Reserva no encontrada',
+                        undefined,
+                        new APIError('No se pudo encontrar la reserva', 404)
+                    )
+                );
                 return;
             }
 

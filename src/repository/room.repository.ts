@@ -7,7 +7,10 @@ import prisma from '../utils/prisma-client-wrapper';
 class RoomRepository {
     async getRoom(roomId: Number): Promise<Room | null> {
         try {
-            const room = await prisma.room.findUnique({ where: { roomId: Number(roomId) } });
+            const room = await prisma.room.findUnique({
+                where: { roomId: Number(roomId) },
+                include: { roomType: true },
+            });
             if (!room) {
                 throw new APIError(RoomMessages.GET_ROOM_ERROR, 500);
             }

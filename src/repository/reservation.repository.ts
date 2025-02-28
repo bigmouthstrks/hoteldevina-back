@@ -25,7 +25,7 @@ class ReservationRepository {
                 },
             },
             include: {
-                roomType: true, // Incluir el tipo de habitación para obtener la capacidad
+                roomType: true,
             },
         });
 
@@ -101,6 +101,17 @@ class ReservationRepository {
     async getReservationById(reservationId: number): Promise<Reservation | null> {
         const reservation = await prisma.reservation.findUnique({
             where: { reservationId: reservationId },
+            include: {
+                rooms: {
+                    include: {
+                        room: {
+                            include: {
+                                roomType: true, // Esto incluye el roomType completo, incluyendo images
+                            },
+                        },
+                    },
+                },
+            },
         });
 
         if (!reservation) {
@@ -118,8 +129,16 @@ class ReservationRepository {
         const reservations = await prisma.reservation.findMany({
             where: { reservationStatusId: reservationStatusId },
             include: {
-                rooms: true,
                 reservationStatus: true,
+                rooms: {
+                    include: {
+                        room: {
+                            include: {
+                                roomType: true,
+                            },
+                        },
+                    },
+                },
             },
         });
 
