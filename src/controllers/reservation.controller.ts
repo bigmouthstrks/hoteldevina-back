@@ -297,7 +297,7 @@ class ReservationController {
             }
 
             const reservations = await reservationRepository.getReservationsByStatusId(statusId);
-            if (reservations && reservations.length > 0) {
+            if (reservations && Array.isArray(reservations)) {
                 const updatedReservations = reservations.map((reservation: any) => {
                     return {
                         ...reservation,

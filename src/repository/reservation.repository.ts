@@ -142,7 +142,7 @@ class ReservationRepository {
             },
         });
 
-        if (!reservations || reservations.length === 0) {
+        if (!reservations) {
             if (status) {
                 throw new APIError(`No se encontraron reservas en estado '${status.name}'`, 404);
             }
